@@ -199,14 +199,18 @@ class TemporaryDns : IDisposable
 
     public void SetDNSUnix(params string[] dnsAddresses)
     {
-        RunCommand($"systemd-resolve --set-dns={string.Join(',', dnsAddresses)}");
+        var selectedInterface = GetActiveInterfaceUnix();
+        RunCommand(
+            $"resolvectl dns {selectedInterface.Name} 8.8.8.8 8.8.4.4{string.Join(' ', dnsAddresses)}"
+        );
     }
 
     public void UnsetDNSUnix(string[] dnsAddresses)
     {
-        if (dnsAddresses != null)
+        var selectedInterface = GetActiveInterfaceUnix();
+        if (dnsAddresses != null && selectedInterface != null)
         {
-            RunCommand($"systemd-resolve --reset-dns={string.Join(',', dnsAddresses)}");
+            RunCommand($"resolvectl dns {selectedInterface.Name} {string.Join(' ', dnsAddresses)}");
         }
     }
 

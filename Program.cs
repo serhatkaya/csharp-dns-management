@@ -107,7 +107,7 @@ class TemporaryDns : IDisposable
         }
         else if (os.Platform == PlatformID.Unix)
         {
-            UnsetDNSUnix(originalDnsAddresses);
+            SetDNSUnix(originalDnsAddresses);
         }
         else
         {
@@ -199,15 +199,6 @@ class TemporaryDns : IDisposable
     {
         var selectedInterface = GetActiveInterfaceUnix();
         RunCommand($"resolvectl dns {selectedInterface.Name} {string.Join(' ', dnsAddresses)}");
-    }
-
-    public void UnsetDNSUnix(string[] dnsAddresses)
-    {
-        var selectedInterface = GetActiveInterfaceUnix();
-        if (dnsAddresses != null && selectedInterface != null)
-        {
-            RunCommand($"resolvectl dns {selectedInterface.Name} {string.Join(' ', dnsAddresses)}");
-        }
     }
 
     public void RunCommand(string command)

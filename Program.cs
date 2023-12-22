@@ -49,7 +49,7 @@ class TemporaryDns : IDisposable
 {
     private string[] originalDnsAddresses;
 
-    public static NetworkInterface GetActiveEthernetOrWifiNetworkInterface()
+    public NetworkInterface GetActiveEthernetOrWifiNetworkInterface()
     {
         var Nic = NetworkInterface
             .GetAllNetworkInterfaces()
@@ -68,11 +68,9 @@ class TemporaryDns : IDisposable
         return Nic;
     }
 
-    public static NetworkInterface GetActiveInterfaceUnix()
+    public NetworkInterface GetActiveInterfaceUnix()
     {
         NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-
-        // Choose the desired interface based on your criteria
         NetworkInterface selectedInterface = networkInterfaces.FirstOrDefault(
             IsPhysicalEthernetInterface
         );
@@ -170,7 +168,7 @@ class TemporaryDns : IDisposable
         }
     }
 
-    public static void UnsetDNSWin()
+    public void UnsetDNSWin()
     {
         var CurrentInterface = GetActiveEthernetOrWifiNetworkInterface();
         if (CurrentInterface == null)
@@ -212,7 +210,7 @@ class TemporaryDns : IDisposable
         }
     }
 
-    public static void RunCommand(string command)
+    public void RunCommand(string command)
     {
         var processStartInfo = new ProcessStartInfo
         {
@@ -231,7 +229,7 @@ class TemporaryDns : IDisposable
         }
     }
 
-    static bool IsPhysicalEthernetInterface(NetworkInterface networkInterface)
+    public bool IsPhysicalEthernetInterface(NetworkInterface networkInterface)
     {
         // Check if the interface is Ethernet, is UP, and is not a virtual or loopback interface
         return networkInterface.NetworkInterfaceType == NetworkInterfaceType.Ethernet
@@ -244,7 +242,7 @@ class TemporaryDns : IDisposable
                 .Any(addr => !IPAddress.IsLoopback(addr.Address));
     }
 
-    static IEnumerable<IPAddress> GetIPAddresses(NetworkInterface networkInterface)
+    public IEnumerable<IPAddress> GetIPAddresses(NetworkInterface networkInterface)
     {
         return networkInterface
             .GetIPProperties()

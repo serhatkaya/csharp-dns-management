@@ -113,6 +113,7 @@ class TemporaryDns : IDisposable
         var networkInterface = GetActiveEthernetOrWifiNetworkInterface();
         if (networkInterface != null)
         {
+            Console.WriteLine("Chosen network interface: ", networkInterface.Name);
             var properties = networkInterface.GetIPProperties();
             var dnsAddresses = properties.DnsAddresses.Select(dns => dns.ToString()).ToArray();
             return dnsAddresses;

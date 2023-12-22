@@ -68,6 +68,18 @@ class TemporaryDns : IDisposable
         return Nic;
     }
 
+    public static NetworkInterface GetActiveInterfaceUnix()
+    {
+        NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+        // Choose the desired interface based on your criteria
+        NetworkInterface selectedInterface = networkInterfaces.FirstOrDefault(
+            IsPhysicalEthernetInterface
+        );
+
+        return selectedInterface;
+    }
+
     public TemporaryDns(params string[] dnsAddresses)
     {
         OperatingSystem os = Environment.OSVersion;
@@ -110,11 +122,20 @@ class TemporaryDns : IDisposable
 
     public string[] GetCurrentDnsAddresses()
     {
-        var networkInterface = GetActiveEthernetOrWifiNetworkInterface();
-        if (networkInterface != null)
+        var selectedInterface = GetActiveInterfaceUnix();
+        if (selectedInterface != null)
         {
-            Console.WriteLine("Chosen network interface: ", networkInterface.Name);
-            var properties = networkInterface.GetIPProperties();
+            Console.WriteLine($"Selected Interface Name: {selectedInterface.Name}");
+            Console.WriteLine($"Description: {selectedInterface.Description}");
+            Console.WriteLine($"Type: {selectedInterface.NetworkInterfaceType}");
+            Console.WriteLine($"Status: {selectedInterface.OperationalStatus}");
+            Console.WriteLine($"MAC Address: {selectedInterface.GetPhysicalAddress()}");
+            Console.WriteLine("IP Addresses:");
+            foreach (var ipAddress in GetIPAddresses(selectedInterface))
+            {
+                Console.WriteLine($"   - {ipAddress}");
+            }
+            var properties = selectedInterface.GetIPProperties();
             var dnsAddresses = properties.DnsAddresses.Select(dns => dns.ToString()).ToArray();
             return dnsAddresses;
         }
@@ -219,5 +240,18 @@ class TemporaryDns : IDisposable
                 .GetIPProperties()
                 .UnicastAddresses
                 .Any(addr => !IPAddress.IsLoopback(addr.Address));
+    }
+
+    static IEnumerable<IPAddress> GetIPAddresses(NetworkInterface networkInterface)
+    {
+        return networkInterface
+            .GetIPProperties()
+            .UnicastAddresses
+            .Where(
+                addr =>
+                    addr.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork
+                    || addr.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6
+            )
+            .Select(addr => addr.Address);
     }
 }

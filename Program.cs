@@ -200,9 +200,7 @@ class TemporaryDns : IDisposable
     public void SetDNSUnix(params string[] dnsAddresses)
     {
         var selectedInterface = GetActiveInterfaceUnix();
-        RunCommand(
-            $"resolvectl dns {selectedInterface.Name} 8.8.8.8 8.8.4.4{string.Join(' ', dnsAddresses)}"
-        );
+        RunCommand($"resolvectl dns {selectedInterface.Name} {string.Join(' ', dnsAddresses)}");
     }
 
     public void UnsetDNSUnix(string[] dnsAddresses)
